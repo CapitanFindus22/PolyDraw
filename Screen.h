@@ -2,13 +2,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/// @brief A pair of numbers
 typedef struct {
 
     size_t start;
     size_t end;
 
 }Pairs;
-
+ 
+/// @brief Encapsulate a window 
 typedef struct {
 
     SDL_Window *win;
@@ -25,13 +27,15 @@ typedef struct {
 }Screen;
 
 void Init(Screen*,int,int);
-void setPoints(SDL_FPoint*,size_t);
 void drawPoints(SDL_Renderer*,SDL_FPoint*,size_t);
 void drawLines(SDL_Renderer*,SDL_FPoint*,size_t,size_t);
 void Close(Screen *);
 
-
-void Init(Screen *s,int width,int height) {
+/// @brief Initializa the library and create the screen and the renderer
+/// @param s The screen to initialize
+/// @param width The width of the screen to create
+/// @param height The height of the screen to create
+void Init(Screen *s, int width, int height) {
 
 
     if(SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -70,6 +74,10 @@ void Init(Screen *s,int width,int height) {
 
 }
 
+/// @brief Draw all the points in the list
+/// @param r The renderer to draw in
+/// @param p The list of points to draw
+/// @param l The number of points
 void drawPoints(SDL_Renderer *r,SDL_FPoint *p,size_t l) {
 
     SDL_SetRenderDrawColor(r,0,0,0,255);
@@ -91,6 +99,8 @@ void drawLines(SDL_Renderer *r,SDL_FPoint *p,size_t l,size_t c) {
 
 }
 
+/// @brief Close the library and free the memory occupied by the screen
+/// @param s The screen to close
 void Close(Screen *s) {
 
     free(s->points);

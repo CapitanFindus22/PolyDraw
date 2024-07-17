@@ -1,2 +1,2 @@
 all:
-	gcc main.c -lSDL2 -lSDL2main
+	gcc main.c Screen.h -lSDL2 -lSDL2main
