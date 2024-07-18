@@ -1,7 +1,9 @@
 #include <SDL2/SDL.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <malloc.h>
+
 
 /// @brief A pair of numbers
 typedef struct {
@@ -33,15 +35,15 @@ void Close(Screen*);
 
 //Setter functions
 bool addPoints(Screen*,SDL_FPoint*,size_t);
+bool addConnections(Screen*,Pairs*,size_t);
 
-/*
-bool setConnections(Screen*,int*,size_t);
-bool addConnections(Screen*,int*,size_t);
- */
 //Draw functions
-void drawPoints(Screen*);
-void drawLines(SDL_Renderer*,SDL_FPoint*,size_t,size_t);
+void clear(Screen*);
 
+void drawPoints(Screen*);
+void drawLines(Screen*);
+
+void rotate(float,Screen*);
 
 
 /// @brief Initializa the library and create the screen and the renderer
@@ -66,15 +68,6 @@ void Init(Screen *screen, int width, int height) {
 
     screen->points = NULL;
     screen->connections = NULL;
-
-/*    
-    screen->num_connections = 8;
-    screen->connections = (Pairs*)calloc(screen->num_connections,sizeof(Pairs));
-
-    if(screen->connections == NULL) {
-        fprintf(stderr, "Can't allocate points");
-        } */
-
 }
 
 /// @brief Add points to the screen list
@@ -137,11 +130,15 @@ bool addPoints(Screen *screen, SDL_FPoint *points, size_t num_points) {
 
         screen->points = temp;
 
-        //Add values
-        for(size_t j = 0, i = num_points; i < screen->num_points + num_points || j < num_points;i++,j++){
+        //Add values at the end of the list
+        size_t j = 0;
+
+        for(i = screen->num_points; i < (screen->num_points + num_points); i++){
 
             screen->points[i].x = points[j].x;
             screen->points[i].y = points[j].y;
+
+            j++;
 
         }
          
@@ -154,12 +151,95 @@ bool addPoints(Screen *screen, SDL_FPoint *points, size_t num_points) {
 
 }
 
+bool addConnections(Screen *screen,Pairs *connections,size_t num_conn) {
+
+    //If there are no connections to add
+    if(connections == NULL){
+        fprintf(stderr, "No connections to add");
+        return false;
+    }
+
+    size_t i;
+
+    //If there are no connections
+    if(screen->connections == NULL){
+
+        //Allocate memory to save the connections
+        screen->connections = (Pairs*)calloc(num_conn,sizeof(Pairs));
+
+        //Catch error
+        if(screen->connections == NULL){
+            fprintf(stderr, "Can't allocate memory");
+            return false;
+        }
+
+        //Set values
+        for (i=0; i < num_conn; i++) {
+            screen->connections[i].start = connections[i].start;
+            screen->connections[i].end = connections[i].end;
+        }
+
+        //Set number of connections
+        screen->num_connections = num_conn;
+
+        return true;
+
+
+    }
+
+    //If there are already values
+    else {
+        
+        Pairs *temp;
+
+        temp = screen->connections;
+
+        //Expand memory allocated if possible
+        screen->connections = (Pairs*)realloc(screen->connections,sizeof(Pairs)*(screen->num_connections+num_conn));
+
+        //If not abort and rollback
+        if(temp == NULL){
+            fprintf(stderr, "Can't add elements");
+            screen->connections = temp;
+            return false;
+        }
+
+        screen->connections = temp;
+
+        //Add values at the end of the list
+        size_t j = 0;
+
+        for(i = screen->num_connections; i < (screen->num_connections + num_conn); i++){
+
+            screen->connections[i].start = connections[j].start;
+            screen->connections[i].end = connections[j].end;
+
+            j++;
+
+        }
+         
+    //Set new number of connections
+    screen->num_connections += num_conn;
+
+    return true;
+
+    }
+}
+
+/// @brief Clear the screen
+/// @param screen The screen to clear
+void clear(Screen *screen) {
+
+    SDL_SetRenderDrawColor(screen->renderer,0,0,0,255);
+    SDL_RenderClear(screen->renderer);
+
+}
+
 /// @brief Draw all the points saved in the screen
 /// @param screen The screen whose points must be drawn
 void drawPoints(Screen *screen) {
 
-    SDL_SetRenderDrawColor(screen->renderer,0,0,0,255);
-    SDL_RenderClear(screen->renderer);
+    clear(screen);
 
     SDL_SetRenderDrawColor(screen->renderer,255,255,255,255);
 
@@ -173,7 +253,43 @@ void drawPoints(Screen *screen) {
 
 }
 
-void drawLines(SDL_Renderer *renderer,SDL_FPoint *points,size_t l,size_t c) {
+/// @brief Draw the lines between the points in connections
+/// @param screen The screen to draw to
+void drawLines(Screen *screen) {
+
+    clear(screen);
+
+    SDL_SetRenderDrawColor(screen->renderer,255,255,255,255);
+
+    int a,b;
+
+    for (size_t i=0;i<screen->num_connections;i++) {
+        
+            a = screen->connections[i].start;
+            b = screen->connections[i].end;
+
+            SDL_RenderDrawLineF(screen->renderer,screen->points[a].x,screen->points[a].y,screen->points[b].x,screen->points[b].y);
+
+        }
+
+    SDL_RenderPresent(screen->renderer);
+
+}
+
+/// @brief Used to rotate points
+/// @param x The velocity on x axys
+/// @param y The velocity on y axys
+/// @param screen The screen containing the points
+void rotate(float x,Screen *screen) {
+
+    for (size_t i = 0; i < screen->num_points; i++)
+    {
+        screen->points[i].x = cos(x) * screen->points[i].x - sin(x) * screen->points[i].y;
+
+        screen->points[i].y = cos(x) * screen->points[i].y + sin(x) * screen->points[i].x;
+    }
+
+    
 
 }
 

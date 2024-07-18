@@ -3,8 +3,6 @@
 const int width = 640;
 const int height = 640;
 
-
-
 int main(int argc, char ** argv)
 {
 
@@ -15,20 +13,37 @@ int main(int argc, char ** argv)
 
     SDL_FPoint p[] = {
 
-                {10.0,60.0},
-                {20.0,50.0},
-                {30.0,40.0},
-                {40.0,30.0},
-                {50.0,20.0},
-                {60.0,10.0}
+                {100.0,100.0},
+                {200.0,100.0},
+                {200.0,200.0},
+                {100.0,200.0}
     };
 
     SDL_FPoint p2[] = {
 
-                {100.0,60.0},
-                {200.0,50.0},
-                {300.0,40.0},
-                {400.0,30.0}
+                {150.0,150.0},
+                {250.0,150.0},
+                {250.0,250.0},
+                {150.0,250.0}
+
+    };
+
+    Pairs c[] = {
+
+                {0,1},
+                {1,2},
+                {2,3},
+                {3,0},
+
+                {4,5},
+                {5,6},
+                {6,7},
+                {7,4},
+
+                {4,0},
+                {5,1},
+                {6,2},
+                {7,3}
 
     };
 
@@ -36,12 +51,20 @@ int main(int argc, char ** argv)
 
     addPoints(ptr,p2,sizeof(p2)/sizeof(SDL_FPoint));
 
-    drawPoints(ptr);
+    addConnections(ptr,c,sizeof(c)/sizeof(Pairs));
+
+    drawLines(ptr);
 
     //Quit on X pressed
     while (1)
     {
  
+        drawLines(ptr);
+
+        rotate(0.1,ptr);
+
+        SDL_Delay(50);
+
         while (SDL_PollEvent(&s.event)) {
 
             switch(s.event.type) {
