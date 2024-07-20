@@ -3,84 +3,78 @@
 const int width = 640;
 const int height = 640;
 
-int main(int argc, char ** argv)
+int main(int argc, char **argv)
 {
 
     Screen s;
     Screen *ptr = &s;
 
-    Init(ptr,width,height);
+    InitScreen(ptr, width, height);
 
-    SDL_FPoint p[] = {
+    Polygon p;
+    Polygon *ptr2 = &p;
 
-                {100.0,100.0},
-                {200.0,100.0},
-                {200.0,200.0},
-                {100.0,200.0}
+    InitPolygon(ptr2);
+
+    SDL_FPoint p1[] = {
+
+        {100.0, 100.0},
+        {200.0, 100.0},
+
     };
 
     SDL_FPoint p2[] = {
 
-                {150.0,150.0},
-                {250.0,150.0},
-                {250.0,250.0},
-                {150.0,250.0}
+        {200.0, 200.0},
+        {100.0, 200.0}
 
     };
 
     Pairs c[] = {
 
-                {0,1},
-                {1,2},
-                {2,3},
-                {3,0},
-
-                {4,5},
-                {5,6},
-                {6,7},
-                {7,4},
-
-                {4,0},
-                {5,1},
-                {6,2},
-                {7,3}
+        {0, 1},
+        {1, 2},
+        {2, 3},
+        {3, 0},
 
     };
 
-    addPoints(ptr,p,sizeof(p)/sizeof(SDL_FPoint));
+    addPoints(ptr2, p1, sizeof(p1) / sizeof(SDL_FPoint));
 
-    addPoints(ptr,p2,sizeof(p2)/sizeof(SDL_FPoint));
+    addPoints(ptr2, p2, sizeof(p2) / sizeof(SDL_FPoint));
 
-    addConnections(ptr,c,sizeof(c)/sizeof(Pairs));
+    CalculateCentroid(ptr2);
 
-    drawLines(ptr);
+    addlines(ptr2, c, sizeof(c) / sizeof(Pairs));
 
-    //Quit on X pressed
+    drawLines(ptr, ptr2);
+
+    // Quit on X pressed
     while (1)
     {
- 
-        drawLines(ptr);
 
-        rotate(0.1,ptr);
+        rotatePoints(0.001, ptr2);
+
+        drawLines(ptr, ptr2);
 
         SDL_Delay(50);
 
-        while (SDL_PollEvent(&s.event)) {
+        while (SDL_PollEvent(&s.event))
+        {
 
-            switch(s.event.type) {
+            switch (s.event.type)
+            {
 
             case SDL_QUIT:
                 goto end;
-
             }
-
         }
-
     }
 
-    end:
+end:
 
-    Close(&s);
- 
+    ClearPolygon(ptr2);
+    CloseScreen();
+
     return 0;
 }
