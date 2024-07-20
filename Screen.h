@@ -2,7 +2,6 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <malloc.h>
 #include "Polygon.h"
 
 /// @brief Encapsulate a window
