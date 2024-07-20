@@ -1,1 +1,1 @@
-# A really basic program that can draw polygons on the screen
+A really basic program that can draw polygons on the screen
